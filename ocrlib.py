@@ -5,7 +5,8 @@ import os
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 LIB_DIR = os.path.join(SCRIPT_DIR, 'lib')
-
+os.environ['LD_LIBRARY_PATH'] = os.environ['LAMBDA_TASK_ROOT'] + LIB_DIR
+os.environ['TESSDATA_PREFIX'] = SCRIPT_DIR
 
 class OCR(object):
 
