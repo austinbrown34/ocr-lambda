@@ -7,6 +7,6 @@
     "runtime": "python3.6",
     "s3_bucket": "zappa-p7v2egjib",
     "binary_support": true,
-    "use_precompiled_packages": false
+    "use_precompiled_packages": true
   }
 }
