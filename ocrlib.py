@@ -20,8 +20,12 @@ class OCR(object):
         	   cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
         elif preprocess == "blur":
             gray = cv2.medianBlur(gray, 3)
-
+        
         filename = "/tmp/{}.png".format(os.getpid())
+        try:
+            os.remove(filename)
+        except OSError:
+            pass
         cv2.imwrite(filename, gray)
         text = pytesseract.image_to_string(Image.open(filename))
         os.remove(filename)

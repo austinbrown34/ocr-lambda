@@ -4,11 +4,31 @@ from ocrlib import OCR
 import requests
 import boto3
 import subprocess
+import datetime
+import time
 from zappa.async import task
 
 
 app = Flask(__name__)
 
+session = boto3.Session()
+s3 = session.resource('s3')
+bucket = 'ocr-lambda-text'
+
+@task
+def upload_text(text):
+    try:
+        os.remove('/tmp/text.txt')
+    except OSError:
+        pass
+    with open('/tmp/text.txt', 'w') as f:
+        f.write(text)
+
+    s3.meta.client.upload_file(
+        '/tmp/text.txt',
+        bucket,
+        'text-{}.txt'.format(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'))
+    )
 
 
 @task
@@ -20,8 +40,10 @@ def get_text(file):
         pass
     with open('/tmp/file', 'wb') as f:
         f.write(r.content)
-    if magic.from_file('/tmp/file', mime=True) == 'application/pdf':
+    if magic.from_file('/tmp/file', mime=True) != 'image/png':
         subprocess.call(['convert', '/tmp/file', '-append', '/tmp/file.png'])
+    else:
+        os.rename('/tmp/file', '/tmp/file.png')
     text = OCR.get_text('/tmp/file.png')
 
 @app.errorhandler(404)
