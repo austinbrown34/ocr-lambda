@@ -6,6 +6,7 @@ import boto3
 import subprocess
 import datetime
 import time
+import os
 from zappa.async import task
 
 
@@ -14,6 +15,7 @@ app = Flask(__name__)
 session = boto3.Session()
 s3 = session.resource('s3')
 bucket = 'ocr-lambda-text'
+
 
 @task
 def upload_text(text):
@@ -33,7 +35,7 @@ def upload_text(text):
 
 @task
 def get_text(file):
-    r = requests.get(img)
+    r = requests.get(file)
     try:
         os.remove('/tmp/file')
     except OSError:
@@ -45,6 +47,8 @@ def get_text(file):
     else:
         os.rename('/tmp/file', '/tmp/file.png')
     text = OCR.get_text('/tmp/file.png')
+    upload_text(text)
+
 
 @app.errorhandler(404)
 def not_found(error):
@@ -54,7 +58,7 @@ def not_found(error):
 @app.route('/', methods=['GET'])
 def ocr_lambda():
     get_text(request.args.get('file'))
-    return {"msg": "Request Received"}
+    return "Request Received"
 
 
 if __name__ == '__main__':
