@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, make_response, request, abort
 import magic
 from ocrlib import OCR
+from pypdflib import PDFExtractor
 import requests
 import boto3
 import subprocess
@@ -16,6 +17,7 @@ session = boto3.Session()
 s3 = session.resource('s3')
 bucket = 'ocr-lambda-text'
 converted_bucket = 'ocr-lambda-converted'
+pages_bucket = 'ocr-lambda-pages'
 
 
 @task
