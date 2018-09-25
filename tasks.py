@@ -7,6 +7,7 @@ import subprocess
 import datetime
 import time
 import os
+import shutil
 from zappa.async import task
 
 
@@ -15,6 +16,27 @@ s3 = session.resource('s3')
 bucket = 'ocr-lambda-text'
 converted_bucket = 'ocr-lambda-converted'
 pages_bucket = 'ocr-lambda-pages'
+
+
+@task
+def get_pages(file):
+    try:
+        shutil.rmtree('/tmp/pages')
+    except OSError:
+        pass
+    os.mkdir('/tmp/pages')
+    r = requests.get(file)
+    try:
+        os.remove('/tmp/file')
+    except OSError:
+        pass
+    with open('/tmp/file', 'wb') as f:
+        f.write(r.content)
+    PDFExtractor.get_pages('/tmp/file', '/tmp/pages')
+    for page in os.listdir('/tmp/pages'):
+        dst = os.path.join('/tmp/pages', page)
+        upload(dst, pages_bucket, '{}-{}.pdf'.format(page, datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')))
+
 
 @task
 def convert(file):
@@ -29,7 +51,6 @@ def convert(file):
     upload('/tmp/file.png', converted_bucket, 'png-{}.png'.format(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')))
 
 
-@task
 def upload(local_file, bucket, s3_file):
     s3.meta.client.upload_file(
         local_file,
