@@ -68,11 +68,21 @@ def get_text(file):
         pass
     with open('/tmp/file', 'wb') as f:
         f.write(r.content)
-    if magic.from_file('/tmp/file', mime=True) != 'image/png':
-        subprocess.call(['convert', '-verbose', '-density', '150', '/tmp/file', '-quality', '100', '-sharpen', '0x1.0', '-append', '/tmp/file.png'])
+    text = ""
+    if magic.from_file('/tmp/file', mime=True) == 'application/pdf':
+        text = PDFExtractor.get_text('/tmp/file')
+        if not text:
+            if magic.from_file('/tmp/file', mime=True) != 'image/png':
+                subprocess.call(['convert', '-verbose', '-density', '150', '/tmp/file', '-quality', '100', '-sharpen', '0x1.0', '-append', '/tmp/file.png'])
+            else:
+                os.rename('/tmp/file', '/tmp/file.png')
+            text = OCR.get_text('/tmp/file.png')
     else:
-        os.rename('/tmp/file', '/tmp/file.png')
-    text = OCR.get_text('/tmp/file.png')
+        if magic.from_file('/tmp/file', mime=True) != 'image/png':
+            subprocess.call(['convert', '-verbose', '-density', '150', '/tmp/file', '-quality', '100', '-sharpen', '0x1.0', '-append', '/tmp/file.png'])
+        else:
+            os.rename('/tmp/file', '/tmp/file.png')
+        text = OCR.get_text('/tmp/file.png')
     try:
         os.remove('/tmp/text.txt')
     except OSError:
