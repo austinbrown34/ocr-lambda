@@ -88,5 +88,5 @@ def get_text(file):
     except OSError:
         pass
     with open('/tmp/text.txt', 'w') as f:
-        f.write(text)
+        f.write(str(text))
     upload('/tmp/text.txt', bucket, 'text-{}.txt'.format(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')))
