@@ -9,6 +9,7 @@ import time
 import os
 import shutil
 from zappa.async import task
+from natsort import natsort_keygen, ns
 
 
 session = boto3.Session()
@@ -75,7 +76,8 @@ def get_pages(file):
     PDFExtractor.get_pages('/tmp/file', '/tmp/pages')
     pages = []
     dir_pages = os.listdir('/tmp/pages')
-    dir_pages.sort()
+    natsort_key = natsort_keygen(alg=ns.IGNORECASE)
+    dir_pages.sort(key=natsort_key)
     for page in dir_pages:
         dst = os.path.join('/tmp/pages', page)
         key = '{}-{}.pdf'.format(page, datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'))
