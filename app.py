@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, make_response, request, abort
-from tasks import convert, get_text, get_pages
+from tasks import convert, get_text, split, process, finish
 
 
 app = Flask(__name__)
@@ -17,8 +17,23 @@ def ocr_lambda():
     elif request.method == 'POST':
         if not (request.json):
             abort(400)
-        file = request.json['file']
-    get_text(file)
+        print("this is the json")
+        print(request.json)
+        file = request.json['params']['file']
+        # submit_work_url = request.json['submit_work_url']
+    get_text(file, payload=request.json)
+    return "Request Received"
+
+
+@app.route('/finish', methods=['GET', 'POST'])
+def finish_lambda():
+    if request.method == 'GET':
+        payload = request.args.get('payload')
+    elif request.method == 'POST':
+        if not (request.json):
+            abort(400)
+        payload = request.json
+    finish(payload)
     return "Request Received"
 
 
@@ -42,7 +57,19 @@ def split_lambda():
         if not (request.json):
             abort(400)
         file = request.json['file']
-    get_pages(file)
+    split(file)
+    return "Request Received"
+
+
+@app.route('/process', methods=['GET', 'POST'])
+def process_lambda():
+    if request.method == 'GET':
+        file = request.args.get('file')
+    elif request.method == 'POST':
+        if not (request.json):
+            abort(400)
+        file = request.json['file']
+    process(file)
     return "Request Received"
 
 
