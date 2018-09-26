@@ -74,7 +74,9 @@ def get_pages(file):
         f.write(r.content)
     PDFExtractor.get_pages('/tmp/file', '/tmp/pages')
     pages = []
-    for page in os.listdir('/tmp/pages').sort():
+    dir_pages = os.listdir('/tmp/pages')
+    dir_pages.sort()
+    for page in dir_pages:
         dst = os.path.join('/tmp/pages', page)
         key = '{}-{}.pdf'.format(page, datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'))
         upload(dst, pages_bucket, key)
