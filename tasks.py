@@ -38,17 +38,26 @@ def finish(payload):
 
 @task
 def process(file):
-    pages = get_pages(file)
+    # pages = get_pages(file)
+    r = requests.get(file)
+    try:
+        os.remove('/tmp/file')
+    except OSError:
+        pass
+    with open('/tmp/file', 'wb') as f:
+        f.write(r.content)
+    num_pages = PDFExtractor.total_pages('/tmp/file')
     payload = {
         "callback": do_parallel_callback,
         "tasks": []
     }
-    for page in pages:
+    for page in range(num_pages):
         payload["tasks"].append(
             {
                 "endpoint": task_url,
                 "params": {
-                    "file": page
+                    "file": file,
+                    "page_num": int(page + 1)
                 }
             }
         )
@@ -114,7 +123,7 @@ def upload(local_file, bucket, s3_file):
 
 
 @task
-def get_text(file, payload=None):
+def get_text(file, payload=None, page_num=None):
     r = requests.get(file)
     try:
         os.remove('/tmp/file')
@@ -122,6 +131,15 @@ def get_text(file, payload=None):
         pass
     with open('/tmp/file', 'wb') as f:
         f.write(r.content)
+    if page_num is not None:
+        try:
+            shutil.rmtree('/tmp/pages')
+        except OSError:
+            pass
+        os.mkdir('/tmp/pages')
+        os.rename('/tmp/file', '/tmp/tmp_file')
+        page = PDFExtractor.get_page('/tmp/tmp_file', '/tmp/pages/', page_num)
+        os.rename(page, '/tmp/file')
     text = ""
     if magic.from_file('/tmp/file', mime=True) == 'application/pdf':
         text = PDFExtractor.get_text('/tmp/file')

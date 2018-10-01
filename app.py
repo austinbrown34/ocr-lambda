@@ -14,14 +14,16 @@ def not_found(error):
 def ocr_lambda():
     if request.method == 'GET':
         file = request.args.get('file')
+        get_text(file)
     elif request.method == 'POST':
         if not (request.json):
             abort(400)
         print("this is the json")
         print(request.json)
         file = request.json['params']['file']
+        page_num = request.json['params']['page_num']
         # submit_work_url = request.json['submit_work_url']
-    get_text(file, payload=request.json)
+        get_text(file, payload=request.json, page_num=page_num)
     return "Request Received"
 
 
