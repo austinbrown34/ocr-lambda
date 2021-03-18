@@ -20,7 +20,7 @@ lambda-packages==0.20.0
 MarkupSafe==1.0
 natsort==5.4.1
 numpy==1.15.1
-Pillow==5.2.0
+Pillow==8.1.1
 placebo==0.8.2
 PyPDF2==1.26.0
 pytesseract==0.2.4
