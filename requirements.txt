@@ -27,7 +27,7 @@ pytesseract==0.2.4
 python-dateutil==2.6.1
 python-magic==0.4.15
 python-slugify==1.2.4
-PyYAML==3.12
+PyYAML==5.4
 requests==2.19.1
 s3transfer==0.1.13
 six==1.11.0
