@@ -22,7 +22,7 @@ natsort==5.4.1
 numpy==1.15.1
 Pillow==5.2.0
 placebo==0.8.2
-PyPDF2==1.26.0
+PyPDF2==1.27.5
 pytesseract==0.2.4
 python-dateutil==2.6.1
 python-magic==0.4.15
